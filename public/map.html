@@ -1,24 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Event Locator Map</title>
-  <style>
-    #map {
-      height: 600px;
-      width: 100%;
-    }
-    .favorite-btn {
-      margin-top: 5px;
-    }
-  </style>
+  <title>EVENTO - Event Locator App</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Event Locations</h1>
+  <h1>EVENTO</h1>
+  <h2>Your Events Locator App</h2>
   <div id="map"></div>
-  <p>Login with token: <input type="text" id="token" placeholder="Bearer <token>"></p>
+  <div id="auth-links">
+    <a href="login.html">Login</a>
+    <button id="logoutButton">Logout</button>
+  </div>
 
   <script>
-    let userToken = '';
+    let userToken = localStorage.getItem('token');
     let ws = new WebSocket('ws://localhost:3000');
 
     ws.onopen = () => {
@@ -30,7 +26,7 @@
       if (message.type === 'new_event') {
         const { titles, latitude, longitude } = message.data;
         alert(`New event nearby: ${titles.en} at (${latitude}, ${longitude})`);
-        
+
         addMarker(message.data);
       }
     };
@@ -58,7 +54,7 @@
         addMarker(event, map);
       });
 
-      window.currentMap = map; 
+      window.currentMap = map;
     }
 
     function addMarker(event, map = window.currentMap) {
@@ -85,9 +81,8 @@
     }
 
     async function toggleFavorite(eventId) {
-      userToken = document.getElementById('token').value;
       if (!userToken) {
-        alert('Please enter your token!');
+        alert('Please login!');
         return;
       }
 
@@ -111,6 +106,12 @@
         alert('Error: ' + err.message);
       }
     }
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      userToken = null;
+      alert('You have been logged out.');
+      window.location.href = '/login.html';
+    });
   </script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDd1MRQo6a3LmCWezMc5FHfUCA-M7uNQEU&callback=initMap" async defer></script>
 </body>
